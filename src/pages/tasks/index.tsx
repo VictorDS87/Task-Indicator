@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Header } from "./header"
-import { Button, Check, Container, ContainerShowTasks, Input, FormContainer, HeaderShowTask, ShowTasks, TesteLetra } from "./styles";
+import { Button, DefaultMessage, Check, Container, ContainerShowTasks, Input, FormContainer, HeaderShowTask, ShowTasks, TesteLetra, ContainerTaskCompleteValue, ErrorMessage } from "./styles";
 import { PlusCircle, Trash  } from "phosphor-react";
 
 import {v4 as uuidv4} from 'uuid';
@@ -13,14 +13,49 @@ interface Task {
 }
 export function Tasks() {
     const [tasks, setTasks] = useState<Task[]>([])
+    const [tasksComplete, setTasksComplete] = useState<number>(0)
+    const [inputValue, setInputValue] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [valueIsInvalid, setValueIsInvalid] = useState(true);
     
-    async function fetchTasks() {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleClick = () => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+    };
+
+    async function FetchTasks() {
         const response = await api.get('tasks')
 
         setTasks(response.data)
     }
 
-    function teste(id: string) {    
+    async function CreateNewTask(event: any) {
+        event.preventDefault()
+
+        if(inputValue.trim() == "") {
+            return setValueIsInvalid(false)
+        }else {
+            setIsLoading(true);
+            console.log(inputValue)
+            const response = await api.post('tasks', {
+                content: event.target[0].value,
+                id: uuidv4(),
+                status: false
+            })
+    
+      
+            setTasks((state) => [...state, response.data] )
+            setInputValue("");
+            setIsLoading(false);
+            setValueIsInvalid(true)
+ 
+        }
+    }
+
+    function MarkAsComplete(id: string) {    
         
         const taskIndex = tasks.findIndex((task) => {return task.id == id;});
         const tempTasks = [...tasks];
@@ -28,45 +63,52 @@ export function Tasks() {
         tempTasks[taskIndex].status = !tempTasks[taskIndex].status;
 
         setTasks(tempTasks);
-    }
 
-    async function testessevent(event: any) {
-        event.preventDefault()
-
-        const response = await api.post('tasks', {
-            content: event.target[0].value,
-            id: uuidv4(),
-            status: false
-        })
-
-        setTasks((state) => [...state, response.data] )
+        if(tempTasks[taskIndex].status) {
+            setTasksComplete((count) => count + 1)
+        }else {
+            setTasksComplete((count) => count - 1)
+        }
     }
 
     async function DeleteTask(id:string) {
         api.delete('tasks/'+id)
 
-        setTasks(tasks.filter(task => task.id != id))   
+        setTasks(tasks.filter(task => task.id != id))
+        const teste = tasks.filter(task => task.id == id)
+
+        if(teste[0].status) {
+            setTasksComplete((count) => count - 1)
+        }
     }
 
     useEffect(() => {
-        fetchTasks()
-    }, [tasks])
+        FetchTasks()
+    }, [])
+
     return (
         <Container>
             <Header/>
 
-            <FormContainer onSubmit={(e) => {testessevent(e)}}>
+            <FormContainer onSubmit={(e) => {CreateNewTask(e)}}>
                 <Input
                     placeholder="Dê um nome para a sua nova tarefa"
-                />     
-                <Button type="submit">Criar <PlusCircle size={20} /></Button>
+                    autoFocus={true}
+                    ref={inputRef}
+                    onChange={(e) => setInputValue(e?.target.value)}
+                    value={inputValue}
+                    
+                    />     
+                <Button type="submit" onClick={handleClick} disabled={isLoading}>{isLoading ? 'Criando' : 'Criar'}</Button>
             </FormContainer>
 
+            <DefaultMessage>{valueIsInvalid ? <p>Digite um nome para a tarefa</p>:<ErrorMessage>Por favor, digite algo para criar uma nova tarefa</ErrorMessage>}</DefaultMessage>
+            
             <ContainerShowTasks>
                 <HeaderShowTask>
-                    <div><p>Tarefas criadas</p><span>5</span></div>
+                    <div><p>Tarefas criadas</p><span>{tasks.length}</span></div>
                     
-                    <div><p>Concluidas</p><span>2 de 5</span></div>
+                    <div><p>Concluidas</p><ContainerTaskCompleteValue>{tasksComplete} de {tasks.length}</ContainerTaskCompleteValue></div>
 
                 </HeaderShowTask>
                 { tasks.map((task: Task) =>             
@@ -77,7 +119,7 @@ export function Tasks() {
                                 shape="round" 
                                 variant="fill" 
                                 checked={task.status}
-                                onChange={(e) => {teste(task.id)}}
+                                onChange={(e) => {MarkAsComplete(task.id)}}
                                 />            
                             {task.status ? 
                             

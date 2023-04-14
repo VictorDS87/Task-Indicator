@@ -5,8 +5,6 @@ export const Container = styled.div`
     
 `
 
-
-
 // Form new task
 
 export const FormContainer = styled.form`
@@ -22,15 +20,46 @@ export const FormContainer = styled.form`
     gap: 0.5rem; 
 `
 export const Button = styled.button`
+    position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
     border-radius: 6px;
+    width: 100px;
     padding: 1rem;
+    gap: 0.3rem;
     border: none;
 
     background: #1E6F9F;
     color: white;
-    gap: 0.3rem;
+    font-size: 16px;
+
+    cursor: pointer;
+    transition: 0.3s;   
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    &:hover {
+        filter: brightness(0.8);
+    }
+`
+
+export const DefaultMessage = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+
+    p {
+        color: white
+    }
+`
+
+export const ErrorMessage = styled.p`
+    color: #f16565 !important;
 `
 export const Input = styled.input`
     flex: 1;
@@ -60,6 +89,7 @@ export const HeaderShowTask = styled.div`
     display: flex;
     justify-content: space-between;
 
+    color: white;
     div {
         display: flex;
         align-items: center;
@@ -75,11 +105,19 @@ export const HeaderShowTask = styled.div`
             padding: 1px 0.5rem 1px 0.5rem;
             background: #333333;
             border-radius: 999px;
+
         }
     }
 `
 
+export const ContainerTaskCompleteValue = styled.span`
+    display: flex;
+    justify-content: center;
+    width: 49px;
+`
+
 export const ShowTasks = styled.div`
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     background: #333333;
     padding: 0.8rem;
     border-radius: 7px;
