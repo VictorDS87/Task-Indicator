@@ -9,6 +9,18 @@
 <body>
     <h1>Task Indicator</h1>
     <p>"Task Indicator" tem como função criar tarefas</p>
-    <img src="./public/pagina-apresentação.png" alt="">
+    <p>O banco de dados dele é local, usei o server json para isso</p>
+    <img src="./public/paginaApresentacao.png" alt="">
+    <img src="./public/paginaApresentacao2.png" alt="">
+    <h2>Conhecimentos usadas</h2>
+    °typeScript
+    °ReactJS
+    °Css
+    °Styled Components
+    °Server JSON
+    <h3>Como inicar o projeto</h3>
+    1°npm install / npm i
+    2°npm run dev:server
+    3°npm run dev
 </body>
 </html>
